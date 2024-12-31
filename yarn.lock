@@ -10592,6 +10592,7 @@ __metadata:
     react: 18.3.1
     react-native: 0.76.5
     react-native-builder-bob: ^0.32.0
+    react-native-mmkv: ^3.2.0
   languageName: unknown
   linkType: soft
 
@@ -10622,6 +10623,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
+    react-native-mmkv: ^3.1.0
   languageName: unknown
   linkType: soft
 
@@ -10654,6 +10656,16 @@ __metadata:
   bin:
     bob: bin/bob
   checksum: 913301f523ec0c2e854682aebe0abd2e017f041273f5d141e231b499f79e5592ba9d68ba602c665a946e5ee1f6a072b872d53e6f29b51cb9c60ab2b65c3ee8ac
+  languageName: node
+  linkType: hard
+
+"react-native-mmkv@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "react-native-mmkv@npm:3.2.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 766944a7cbf265e27b57576e51bff8604cd8f58c88eaec78bd93d4ce10ff9127d5f75f4c3bb03d6c7ce5dafa07c65e233d5363c0504db802cc88eaf1ccbffaa1
   languageName: node
   linkType: hard
 

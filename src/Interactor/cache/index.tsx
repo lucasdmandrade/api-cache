@@ -16,8 +16,13 @@ export function createCachedFetch(cacheStorage: CacheStorage) {
     const cachedData = cacheStorage.get(key);
 
     console.warn('cachedData', cachedData || 'vazio');
-    console.log('staleTime', Date.now() - staleTime);
-    console.log('cache time', Date.now() - cachedData?.timestamp);
+    console.log('staleTime', staleTime);
+    console.log(' Date.now()', Date.now());
+    console.log('cachedData?.timestamp', cachedData?.timestamp);
+    console.log(
+      'Date.now() - cachedData?.timestamp',
+      Date.now() - cachedData?.timestamp
+    );
 
     if (cachedData && Date.now() - cachedData.timestamp < staleTime) {
       console.log('return cached');
