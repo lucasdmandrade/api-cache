@@ -1,5 +1,12 @@
 import { useCallback, useMemo } from 'react';
-import { Text, View, StyleSheet, ScrollView } from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+} from 'react-native';
 import useQuery from 'react-native-api-cache';
 
 const App = () => {
@@ -21,14 +28,18 @@ const App = () => {
     []
   );
 
-  const { data, error, isLoading } = useQuery(
+  const { data, error, isLoading, refetch } = useQuery(
     'exampleData',
     requestFn,
     options
   );
-  console.log('rendered', JSON.stringify(data));
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading)
+    return (
+      <View style={[styles.container, styles.backgroundRed]}>
+        <Text>Loading...</Text>
+      </View>
+    );
   if (error)
     return (
       <View style={[styles.container, styles.backgroundRed]}>
@@ -37,27 +48,55 @@ const App = () => {
     );
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.container, styles.backgroundBlue]}
-    >
-      <Text>Data: {JSON.stringify(data)}</Text>
-    </ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.btnContainer}>
+        <TouchableOpacity style={styles.btn} onPress={refetch}>
+          <Text style={styles.text}>Atualizar</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView
+        contentContainerStyle={[styles.container, styles.backgroundBlue]}
+      >
+        {data.results?.map((item, index) => (
+          <Text key={index} style={styles.text}>
+            {item.name}
+          </Text>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    alignItems: 'center',
+  },
+  btn: {
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    borderColor: 'black',
+    borderWidth: 1,
+  },
+  btnContainer: {
+    padding: 10,
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    alignContent: 'center',
+  },
+  container: {
     padding: 25,
+    alignItems: 'center',
   },
   backgroundBlue: {
     backgroundColor: 'green',
   },
   backgroundRed: {
     backgroundColor: 'red',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    padding: 10,
   },
 });
 

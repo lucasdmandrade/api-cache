@@ -28,7 +28,9 @@ export function useQuery(
   }, [requestFn]);
 
   const fetchData = useCallback(async () => {
+    console.log('fetchData');
     const cache = createMemoryCache();
+    console.log('createMemoryCache');
     const interactor = createCachedFetch(cache);
     const fetchHandler = createFetchHandler(interactor.fetchData);
 
@@ -37,7 +39,6 @@ export function useQuery(
       memoizedRequestFn,
       options,
       (result) => {
-        console.log('result', result);
         setData(result);
         setIsLoading(false);
       },
@@ -52,5 +53,5 @@ export function useQuery(
     fetchData();
   }, [key, fetchData]);
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, refetch: fetchData };
 }
