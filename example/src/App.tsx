@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, ScrollView } from 'react-native';
 import useQuery from 'react-native-api-cache';
 
 const App = () => {
@@ -31,15 +31,17 @@ const App = () => {
   if (isLoading) return <Text>Loading...</Text>;
   if (error)
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.backgroundRed]}>
         <Text>Error: {error?.message || 'Erro'}</Text>
       </View>
     );
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={[styles.container, styles.backgroundBlue]}
+    >
       <Text>Data: {JSON.stringify(data)}</Text>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -49,6 +51,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignContent: 'center',
+    padding: 25,
+  },
+  backgroundBlue: {
+    backgroundColor: 'green',
+  },
+  backgroundRed: {
     backgroundColor: 'red',
   },
 });

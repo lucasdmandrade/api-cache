@@ -1,3 +1,3 @@
-import { useQuery } from './View';
+import { useQuery } from './Presenter';
 
 export default useQuery;

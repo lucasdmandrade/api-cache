@@ -1,32 +1,56 @@
-import type { CacheOptions } from '../Entity';
+import { useState, useEffect, useCallback } from 'react';
+import type { UseQueryError } from '../Entity';
+import { createMemoryCache } from '../Entity/storage';
+import { createCachedFetch } from '../Interactor/cache';
+import { createFetchHandler } from '../Interactor/api';
+import type { CacheOptions } from '../Entity/storage/types';
 
 /**
- * Cria um presenter para carregar dados do interactor.
- * @param {{ fetchData: (key: string, requestFn: () => Promise<any>, options?: CacheOptions) => Promise<any> }} interactor - Interactor responsável por lógica de cache.
- * @returns {{ loadData: (key: string, requestFn: () => Promise<any>, options: CacheOptions, onSuccess: (data: any) => void, onError: (error: any) => void) => Promise<void> }}
+ * Hook para buscar dados com cache.
+ * @param {string} key - Chave do cache.
+ * @param {() => Promise<any>} requestFn - Função para realizar a requisição.
+ * @param {CacheOptions} options - Opções de cache.
+ * @returns {{ data: any, error: any, isLoading: boolean }}
  */
-export function createDataPresenter(
-  fetchData: (
-    key: string,
-    requestFn: () => Promise<any>,
-    options: CacheOptions
-  ) => Promise<any>
-) {
-  const loadData = async (
-    key: string,
-    requestFn: () => Promise<any>,
-    options: CacheOptions,
-    onSuccess: (data: any) => void,
-    onError: (error: any) => void
-  ) => {
-    try {
-      console.log('loadData', key, requestFn, options);
-      const teste = await fetchData(key, requestFn, options);
 
-      onSuccess(teste);
-    } catch (error) {
-      onError(error);
-    }
-  };
-  return { loadData };
+export function useQuery(
+  key: string,
+  requestFn: () => Promise<any>,
+  options: CacheOptions
+) {
+  const [data, setData] = useState();
+  const [error, setError] = useState<UseQueryError | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const memoizedRequestFn = useCallback(() => {
+    console.log('memoizedRequestFn called');
+    return requestFn();
+  }, [requestFn]);
+
+  const fetchData = useCallback(async () => {
+    const cache = createMemoryCache();
+    const interactor = createCachedFetch(cache);
+    const fetchHandler = createFetchHandler(interactor.fetchData);
+
+    await fetchHandler.loadData(
+      key,
+      memoizedRequestFn,
+      options,
+      (result) => {
+        console.log('result', result);
+        setData(result);
+        setIsLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setIsLoading(false);
+      }
+    );
+  }, [key, options, memoizedRequestFn]);
+
+  useEffect(() => {
+    fetchData();
+  }, [key, fetchData]);
+
+  return { data, error, isLoading };
 }
