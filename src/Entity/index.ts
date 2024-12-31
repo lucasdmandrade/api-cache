@@ -9,6 +9,7 @@ export interface CacheOptions {
   staleTime?: number;
 }
 
+export type UseQueryError = Error | { message: string; code?: string };
 export interface Interactor {
   fetchData: (
     key: string,

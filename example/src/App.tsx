@@ -1,18 +1,31 @@
+import { useCallback, useMemo } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import useQuery from 'react-native-api-cache';
 
 const App = () => {
-  const requestFn = async () =>
-    await fetch('https://pokeapi.co/api/v2/pokemon/?limit=50').then(
-      async (response) => {
-        const teste = await response.json();
-        return teste;
-      }
-    );
+  const requestFn = useCallback(
+    async () =>
+      await fetch('https://pokeapi.co/api/v2/pokemon/?limit=50').then(
+        async (response) => {
+          const teste = await response.json();
+          return teste;
+        }
+      ),
+    []
+  );
 
-  const { data, error, isLoading } = useQuery('exampleData', requestFn, {
-    staleTime: 300,
-  });
+  const options = useMemo(
+    () => ({
+      staleTime: 300,
+    }),
+    []
+  );
+
+  const { data, error, isLoading } = useQuery(
+    'exampleData',
+    requestFn,
+    options
+  );
   console.log('rendered', JSON.stringify(data));
 
   if (isLoading) return <Text>Loading...</Text>;

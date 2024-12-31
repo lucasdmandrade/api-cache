@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { CacheOptions } from '../Entity';
+import type { CacheOptions, UseQueryError } from '../Entity';
 import { createCacheInteractor, createMemoryCache } from '../Interactor';
 import { createDataPresenter } from '../Presenter';
 
@@ -19,14 +19,14 @@ export function useQuery(
 ) {
   count++;
   console.log('CONUT', count);
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState();
+  const [error, setError] = useState<UseQueryError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const memoizedRequestFn = useCallback(() => {
     console.log('memoizedRequestFn called');
     return requestFn();
-  }, []);
+  }, [requestFn]);
 
   const fetchData = useCallback(async () => {
     console.log('fetchData!!!!!!!!');
@@ -39,10 +39,10 @@ export function useQuery(
     await presenter.loadData(
       key,
       memoizedRequestFn,
-      { staleTime: 300 },
+      options,
       (result) => {
-        console.log('result');
-        // setData([]);
+        console.log('result', result);
+        setData(result);
         setIsLoading(false);
       },
       (err) => {
@@ -50,7 +50,7 @@ export function useQuery(
         setIsLoading(false);
       }
     );
-  }, [key, options, requestFn]);
+  }, [key, options, memoizedRequestFn]);
 
   useEffect(() => {
     fetchData();
