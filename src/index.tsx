@@ -1,5 +1,3 @@
-import ApiCache from './NativeApiCache';
+import { useQuery } from './View';
 
-export function multiply(a: number, b: number): number {
-  return ApiCache.multiply(a, b);
-}
+export default useQuery;
