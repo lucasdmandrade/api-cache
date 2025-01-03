@@ -7,19 +7,17 @@ import { MMKV } from 'react-native-mmkv';
 
 const instance = new MMKV();
 
-export const storage = () => {
-  const get = (key: string) => {
+export const storage = {
+  get: (key: string) => {
     return instance.getString(key) || null;
-  };
-  const set = (key: string, value: any) => {
+  },
+  set: (key: string, value: any) => {
     instance.set(key, JSON.stringify(value));
-  };
-  const clearAll = () => {
+  },
+  clearAll: () => {
     instance.clearAll();
-  };
-  const clear = (key: string) => {
+  },
+  clear: (key: string) => {
     instance.delete(key);
-  };
-
-  return { get, set, clear, clearAll };
+  },
 };

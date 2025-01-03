@@ -1,4 +1,3 @@
-import { useCallback, useMemo } from 'react';
 import {
   Text,
   View,
@@ -7,32 +6,25 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useQuery, type CacheOptions } from 'react-native-api-cache';
+import { useQuery } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 const App = () => {
-  const requestFn = useCallback(
-    async () =>
-      await fetch('https://pokeapi.co/api/v2/pokemon/?limit=50000').then(
-        async (response) => {
-          const pokemons = await response.json();
-          return pokemons;
-        }
-      ),
-    []
-  );
-
-  const options: CacheOptions = useMemo(
-    () => ({
-      staleTime: 5000,
-    }),
-    []
-  );
+  console.log('App');
+  const requestFn = async () =>
+    await fetch('https://pokeapi.co/api/v2/pokemon/?limit=5000').then(
+      async (response) => {
+        const pokemons = await response.json();
+        return pokemons;
+      }
+    );
 
   const { data, error, isLoading, refetch } = useQuery<PokemonResponse>(
     'exampleData',
     requestFn,
-    options
+    {
+      staleTime: 5000,
+    }
   );
 
   if (isLoading)
