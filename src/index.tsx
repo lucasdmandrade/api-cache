@@ -1,3 +1,4 @@
 import { useQuery } from './Presenter';
+import { type CacheOptions } from './Entity/storage/types';
 
-export default useQuery;
+export { useQuery, type CacheOptions };

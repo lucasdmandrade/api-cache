@@ -28,16 +28,6 @@ export function createCachedFetch<T>(cacheStorage: CacheStorage) {
 
     const parsedData = JSON.parse(cachedData) as CacheData<T>;
 
-    console.warn('cachedData', parsedData || 'vazio');
-    console.log('staleTime', staleTime);
-    console.log('staleTime', parsedData);
-    console.log(' Date.now()', Date.now());
-    console.log('cachedData?.timestamp', parsedData?.timestamp);
-    console.log(
-      'Date.now() - cachedData?.timestamp',
-      Date.now() - parsedData?.timestamp
-    );
-
     if (Date.now() - parsedData.timestamp < staleTime) {
       console.log('return cached');
       return parsedData.data;
