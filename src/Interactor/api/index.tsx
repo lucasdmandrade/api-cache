@@ -2,26 +2,26 @@ import type { CacheOptions } from '../../Entity/storage/types';
 
 /**
  * Cria um presenter para carregar dados do interactor.
- * @param {{ (key: string, requestFn: () => Promise<any>, options?: CacheOptions) => Promise<any> }} fetchData - Interactor responsável por lógica de cache.
- * @returns {{ loadData: (key: string, requestFn: () => Promise<any>, options: CacheOptions, onSuccess: (data: any) => void, onError: (error: any) => void) => Promise<void> }}
+ * @template T - O tipo de dado esperado pelo fetchData.
+ * @param {function(string, () => Promise<T>, CacheOptions): Promise<T>} fetchData - Função do interactor responsável pela lógica de cache.
+ * @returns {{ loadData: function(string, () => Promise<T>, CacheOptions, (data: T) => void, (error: any) => void): Promise<void> }}
  */
-export function createFetchHandler(
+export function createFetchHandler<T>(
   fetchData: (
     key: string,
-    requestFn: () => Promise<any>,
+    requestFn: () => Promise<T>,
     options: CacheOptions
-  ) => Promise<any>
+  ) => Promise<T>
 ) {
   const loadData = async (
     key: string,
-    requestFn: () => Promise<any>,
+    requestFn: () => Promise<T>,
     options: CacheOptions,
-    onSuccess: (data: any) => void,
+    onSuccess: (data: T) => void,
     onError: (error: any) => void
   ) => {
     try {
       const data = await fetchData(key, requestFn, options);
-
       onSuccess(data);
     } catch (error) {
       onError(error);

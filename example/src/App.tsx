@@ -8,14 +8,15 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import useQuery from 'react-native-api-cache';
+import type { PokemonResponse } from './mock';
 
 const App = () => {
   const requestFn = useCallback(
     async () =>
-      await fetch('https://pokeapi.co/api/v2/pokemon/?limit=50').then(
+      await fetch('https://pokeapi.co/api/v2/pokemon/?limit=500').then(
         async (response) => {
-          const teste = await response.json();
-          return teste;
+          const pokemons = await response.json();
+          return pokemons;
         }
       ),
     []
@@ -23,12 +24,12 @@ const App = () => {
 
   const options = useMemo(
     () => ({
-      staleTime: 300,
+      staleTime: 5000,
     }),
     []
   );
 
-  const { data, error, isLoading, refetch } = useQuery(
+  const { data, error, isLoading, refetch } = useQuery<PokemonResponse>(
     'exampleData',
     requestFn,
     options
@@ -57,7 +58,7 @@ const App = () => {
       <ScrollView
         contentContainerStyle={[styles.container, styles.backgroundBlue]}
       >
-        {data.results?.map((item, index) => (
+        {data?.results?.map((item, index) => (
           <Text key={index} style={styles.text}>
             {item.name}
           </Text>
