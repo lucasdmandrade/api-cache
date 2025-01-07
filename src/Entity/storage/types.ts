@@ -12,4 +12,6 @@ export interface CacheData<T> {
 
 export interface CacheOptions {
   staleTime?: number;
+  retries?: number;
+  retryInterval?: number;
 }

@@ -10,43 +10,59 @@ import { useQuery } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 const App = () => {
-  console.log('App');
-  const requestFn = async () =>
-    await fetch('https://pokeapi.co/api/v2/pokemon/?limit=5000').then(
-      async (response) => {
-        const pokemons = await response.json();
-        return pokemons;
-      }
-    );
+  let count = 0;
+  const teste = ['a', 'm', 'n', 'o'];
 
-  const { data, error, isLoading, refetch } = useQuery<PokemonResponse>(
+  const increaseCounter = () => {
+    console.log('count', count);
+    if (count >= teste.length - 1) count = 0;
+    else count++;
+  };
+
+  const requestFn = async (): Promise<PokemonResponse> => {
+    console.log('teste[count]', teste[count]);
+
+    return await fetch(`https://pokeapi.co/api/v2/pokemo${teste[count]}`)
+      .then(async (response) => {
+        increaseCounter();
+        const pokemons = await response.json();
+        console.log('pokemons', pokemons);
+        return pokemons;
+      })
+      .catch((e) => {
+        console.warn('api error', e);
+        throw e;
+      });
+  };
+
+  const { data, error, refetch } = useQuery<PokemonResponse>(
     'exampleData',
     requestFn,
     {
-      staleTime: 5000,
+      staleTime: 100,
+      retries: 4,
+      retryInterval: 5000,
     }
   );
-
-  if (isLoading)
-    return (
-      <View style={[styles.container, styles.backgroundRed]}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  if (error)
-    return (
-      <View style={[styles.container, styles.backgroundRed]}>
-        <Text>Error: {error?.message || 'Erro'}</Text>
-      </View>
-    );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.btn} onPress={refetch}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            refetch();
+            increaseCounter();
+          }}
+        >
           <Text style={styles.text}>Atualizar</Text>
         </TouchableOpacity>
       </View>
+      {error && (
+        <View style={[styles.container, styles.backgroundRed]}>
+          <Text>Error: {error?.message || 'Erro'}</Text>
+        </View>
+      )}
       <ScrollView
         contentContainerStyle={[styles.container, styles.backgroundBlue]}
       >

@@ -22,9 +22,15 @@ export function createCachedFetch<T>(cacheStorage: CacheStorage) {
     if (!cachedData) {
       const data = await requestFn();
 
+      console.log('createCachedFetch', data);
+
       cacheStorage.set(key, { data, timestamp: Date.now() });
       return data;
     }
+
+    console.log('createCachedFetch', cachedData);
+    console.log('typeof cachedData === string', typeof cachedData === 'string');
+    console.log('tJSON.parse(cachedData)', JSON.parse(cachedData));
 
     const parsedData = JSON.parse(cachedData) as CacheData<T>;
 
@@ -36,7 +42,10 @@ export function createCachedFetch<T>(cacheStorage: CacheStorage) {
     console.log('return fetch');
     const data = await requestFn();
 
-    cacheStorage.set(key, { data, timestamp: Date.now() });
+    cacheStorage.set(key, {
+      data: data,
+      timestamp: Date.now(),
+    });
     return data;
   };
   return {
