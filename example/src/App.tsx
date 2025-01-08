@@ -9,6 +9,7 @@ import {
 import { useQuery } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
+let apiCounter = 0;
 const App = () => {
   let count = 0;
   const teste = ['a', 'm', 'n', 'o'];
@@ -24,9 +25,10 @@ const App = () => {
 
     return await fetch(`https://pokeapi.co/api/v2/pokemo${teste[count]}`)
       .then(async (response) => {
+        apiCounter++;
+        console.log('------------api counter----------------', apiCounter);
         increaseCounter();
         const pokemons = await response.json();
-        console.log('pokemons', pokemons);
         return pokemons;
       })
       .catch((e) => {

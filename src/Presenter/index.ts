@@ -31,25 +31,58 @@ export function useQuery<T>(
 
     const interactor = createCachedFetch(storage);
     const fetchHandler = createFetchHandler(interactor.fetchData);
-    const fetch = await fetchHandler.fetcher(
-      key,
-      requestFn,
-      options,
-      (result) => {
-        console.log('result!!!', result);
-        if (JSON.stringify(result) !== JSON.stringify(data)) setData(result);
-        setIsLoading(false);
-      },
-      (err) => {
-        console.log('presenter err', err);
-        console.log('err !== error', err !== error);
-        if (JSON.stringify(err) !== JSON.stringify(error)) setError(err);
-        // setIsLoading(false);
-      }
-    );
+    // const fetch = await fetchHandler.fetcher(
+    //   key,
+    //   requestFn,
+    //   options,
+    //   (result) => {
+    //     if (JSON.stringify(result) !== JSON.stringify(data)) setData(result);
+    //     setIsLoading(false);
+    //   },
+    //   (err) => {
+    //     console.log('presenter err', err);
+    //     console.log('err !== error', err !== error);
+    //     if (JSON.stringify(err) !== JSON.stringify(error)) setError(err);
+    //     // setIsLoading(false);
+    //   }
+    // );
 
-    const backgroundHandler = createBackgroundFetchsHandler(key, fetch);
+    const backgroundHandler = createBackgroundFetchsHandler(
+      key,
+      async () =>
+        await fetchHandler.attemptFetch(
+          key,
+          requestFn,
+          options,
+          (result) => {
+            if (JSON.stringify(result) !== JSON.stringify(data))
+              setData(result);
+            setIsLoading(false);
+          },
+          (err) => {
+            console.log('presenter err', err);
+            console.log('err !== error', err !== error);
+            if (JSON.stringify(err) !== JSON.stringify(error)) setError(err);
+            // setIsLoading(false);
+          }
+        )
+    );
     backgroundHandler.fetcher();
+    // await fetchHandler.fetcher(
+    //   key,
+    //   backgroundHandler.fetcher,
+    //   options,
+    //   (result) => {
+    //     if (JSON.stringify(result) !== JSON.stringify(data)) setData(result);
+    //     setIsLoading(false);
+    //   },
+    //   (err) => {
+    //     console.log('presenter err', err);
+    //     console.log('err !== error', err !== error);
+    //     if (JSON.stringify(err) !== JSON.stringify(error)) setError(err);
+    //     // setIsLoading(false);
+    //   }
+    // );
   }, [key, requestFn, options, data, error]);
 
   useEffect(() => {

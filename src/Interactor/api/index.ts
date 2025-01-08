@@ -15,7 +15,9 @@ export function createFetchHandler<T>(
   const attemptFetch = async (
     key: string,
     requestFn: () => Promise<T>,
-    options: CacheOptions
+    options: CacheOptions,
+    onSuccess: (data: T) => void,
+    onError: (error: any) => void
   ): Promise<T> => {
     const { retries = 0, retryInterval = 1000 } = options;
     let attempt = 0;
@@ -24,6 +26,7 @@ export function createFetchHandler<T>(
       try {
         console.log(`Attempt ${attempt + 1}: Trying to fetch data...`);
         const result = await fetchData(key, requestFn, options);
+        onSuccess(result);
         return result;
       } catch (error) {
         console.error(`Error on attempt ${attempt + 1}:`, error);
@@ -31,9 +34,11 @@ export function createFetchHandler<T>(
         if (attempt < retries) {
           attempt++;
           console.log(`Retrying in ${retryInterval}ms...`);
+          onError(error);
           await new Promise((resolve) => setTimeout(resolve, retryInterval));
         } else {
           console.error('Max retries reached. Throwing error...');
+          onError(error);
           throw error; // Sai do loop lançando o erro
         }
       }
@@ -44,16 +49,13 @@ export function createFetchHandler<T>(
   };
 
   const loadData = async (
-    key: string,
     requestFn: () => Promise<T>,
-    options: CacheOptions,
     onSuccess: (data: T) => void,
     onError: (error: any) => void
   ) => {
     try {
-      const data = await attemptFetch(key, requestFn, options);
+      const data = await requestFn();
 
-      console.log('loadData', data);
       onSuccess(data);
     } catch (error) {
       console.log('loadData error ', error);
