@@ -23,16 +23,16 @@ export function createFetchHandler<T>(
     let attempt = 0;
 
     while (attempt <= retries) {
+      attempt++;
       try {
-        console.log(`Attempt ${attempt + 1}: Trying to fetch data...`);
+        console.log(`Attempt ${attempt}: Trying to fetch data...`);
         const result = await fetchData(key, requestFn, options);
         onSuccess(result);
         return result;
       } catch (error) {
-        console.error(`Error on attempt ${attempt + 1}:`, error);
+        console.error(`Error on attempt ${attempt}:`, error);
 
         if (attempt < retries) {
-          attempt++;
           console.log(`Retrying in ${retryInterval}ms...`);
           onError(error);
           await new Promise((resolve) => setTimeout(resolve, retryInterval));

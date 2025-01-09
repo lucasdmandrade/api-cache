@@ -1,53 +1,60 @@
-let pendingRequests: { key: string; request: () => {} }[] = [];
-
 /**
  * Cria um presenter para carregar dados do interactor.
  * @template T - O tipo de dado esperado pelo fetchData.
  * @param {function(string, () => Promise<T>, CacheOptions): Promise<T>} fetchData - Função do interactor responsável pela lógica de cache.
- * @returns {{ loadData: function(string, () => Promise<T>, CacheOptions, (data: T) => void, (error: any) => void): Promise<void> }}
+ * @returns {{ fetcher: () =>  Awaited<T> }}
  */
 export function createBackgroundFetchsHandler<T>(
+  backgroundFetchsOberver: {
+    has: (key: string) => boolean;
+    set: (key: string, value: T) => void;
+    del: (key: string) => void;
+    get: (key: string) => T;
+  },
   key: string,
   requestFn: () => Promise<T>
 ) {
   const handleBackgroundRequests = async () => {
-    console.log('pendingRequests', pendingRequests);
-    console.log('handleBackgroundRequests');
-    if (pendingRequests.length === 0) {
-      console.log('pendingRequests.length === 0 +++++++++++++++++++');
-      return handleCurrentFetch();
+    // await delay(5000);
+
+    // Verifica se já existe uma requisição pendente para a chave
+    if (backgroundFetchsOberver.has(key)) {
+      return backgroundFetchsOberver.get(key);
     }
+    backgroundFetchsOberver.startPosition(key);
 
-    if (pendingRequests.some((el) => el.key === key)) {
-      console.log('pendingRequests.has(key)');
+    // Caso contrário, inicia uma nova requisição
+    const requestPromise = await handleCurrentFetch().then((res) => {
+      console.log('requestPromise: ', res);
+      return res;
+    });
 
-      const index = pendingRequests.findIndex((el) => el.key === key);
-      return pendingRequests.at(index);
-    }
+    // Armazena a Promise no mapa para reutilização
+    backgroundFetchsOberver.set(key, requestPromise);
 
-    return handleCurrentFetch();
+    return requestPromise;
   };
 
   const handleCurrentFetch = async () => {
+    console.log('Starting request for', key);
+
     try {
-      pendingRequests.push({ key, request: requestFn });
-      await delay(5000);
-      console.log('pendingRequests.set(key, requestFn);');
-      console.log('handleCurrentFetch requestFn', requestFn);
-      await requestFn();
-
-      console.log('handleCurrentFetch SETTED');
-
-      return requestFn;
+      // Executa a função de requisição
+      const result = await requestFn();
+      console.log('Request completed for', key);
+      return result;
     } catch (e) {
-      console.log('handleCurrentFetch error', e);
+      console.log('Error during fetch for', key, e);
+      throw e;
     } finally {
-      console.log('finally');
+      // Remove a chave do mapa após a conclusão ou erro
+      backgroundFetchsOberver.del(key);
+      console.log(
+        'Request completed and removed from pendingRequestsMap for',
+        key
+      );
     }
   };
-  return { fetcher: handleBackgroundRequests };
-}
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return { fetcher: handleBackgroundRequests };
 }

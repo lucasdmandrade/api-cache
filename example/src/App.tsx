@@ -6,28 +6,33 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useQuery } from 'react-native-api-cache';
+import { useQuery, BackgroundFetchProvider } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 let apiCounter = 0;
-const App = () => {
-  let count = 0;
-  const teste = ['a', 'm', 'n', 'o'];
+const teste = ['n'];
+let count = 0;
 
+const Component1 = () => {
+  console.warn('Component1');
   const increaseCounter = () => {
-    console.log('count', count);
     if (count >= teste.length - 1) count = 0;
     else count++;
   };
 
   const requestFn = async (): Promise<PokemonResponse> => {
-    console.log('teste[count]', teste[count]);
+    console.log('Component1 teste[count]', teste[count]);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     return await fetch(`https://pokeapi.co/api/v2/pokemo${teste[count]}`)
       .then(async (response) => {
         apiCounter++;
-        console.log('------------api counter----------------', apiCounter);
+        console.log(
+          '---------- Component1 ------------api counter----------------',
+          apiCounter
+        );
         increaseCounter();
+        console.log('response1!!!', response);
         const pokemons = await response.json();
         return pokemons;
       })
@@ -57,7 +62,7 @@ const App = () => {
             increaseCounter();
           }}
         >
-          <Text style={styles.text}>Atualizar</Text>
+          <Text style={styles.text}>Atualizar Componente 1</Text>
         </TouchableOpacity>
       </View>
       {error && (
@@ -75,6 +80,99 @@ const App = () => {
         ))}
       </ScrollView>
     </SafeAreaView>
+  );
+};
+
+const Component2 = () => {
+  console.warn('Component2');
+  const increaseCounter = () => {
+    if (count >= teste.length - 1) count = 0;
+    else count++;
+  };
+
+  const requestFn = async (): Promise<PokemonResponse> => {
+    console.log('Component2 teste[count]', teste[count]);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    return await fetch(`https://pokeapi.co/api/v2/pokemo${teste[count]}`)
+      .then(async (response) => {
+        apiCounter++;
+        console.log(
+          '---------- Component2 ------------api counter----------------',
+          apiCounter
+        );
+        increaseCounter();
+        console.log('response2!!!', response);
+        const pokemons = await response.json();
+        return pokemons;
+      })
+      .catch((e) => {
+        console.warn('api error', e);
+        throw e;
+      });
+  };
+
+  const { data, error, refetch } = useQuery<PokemonResponse>(
+    'exampleData',
+    requestFn,
+    {
+      staleTime: 100,
+      retries: 4,
+      retryInterval: 5000,
+    }
+  );
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.btnContainer}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            refetch();
+            increaseCounter();
+          }}
+        >
+          <Text style={styles.text}>Atualizar Componente 2</Text>
+        </TouchableOpacity>
+      </View>
+      {error && (
+        <View style={[styles.container, styles.backgroundRed]}>
+          <Text>Error: {error?.message || 'Erro'}</Text>
+        </View>
+      )}
+      <ScrollView
+        contentContainerStyle={[styles.container, styles.backgroundBlue]}
+      >
+        {data?.results?.map((item, index) => (
+          <Text key={index} style={styles.text}>
+            {item.name}
+          </Text>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const App = () => {
+  return (
+    <BackgroundFetchProvider>
+      <Component1 />
+      <Component2 />
+
+      <View style={styles.btnContainer}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() =>
+            console.log(
+              '*********** Contador de requisições ***************',
+              apiCounter
+            )
+          }
+        >
+          <Text style={styles.text}>Contador de requisições </Text>
+        </TouchableOpacity>
+      </View>
+    </BackgroundFetchProvider>
   );
 };
 
@@ -98,7 +196,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backgroundBlue: {
-    backgroundColor: 'green',
+    backgroundColor: 'blue',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backgroundRed: {
     backgroundColor: 'red',
