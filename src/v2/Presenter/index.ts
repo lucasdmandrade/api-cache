@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { storage } from '../Entity/storage';
-import { createCachedFetch, Environment, useCache } from '../Interactor/cache';
-import { createFetchHandler } from '../Interactor/api';
+import { Environment, useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
-import { AppState } from 'react-native';
-import { createBackgroundFetchsHandler } from '../Interactor/background';
-import { useBackgroundFetchsObserver } from '../Entity/useBackgroundFetchs/context';
-import { MMKV, useMMKV, useMMKVString } from 'react-native-mmkv';
+// import { AppState } from 'react-native';
 
 /**
  * Hook para buscar dados com cache.
@@ -23,36 +18,17 @@ export function useQueryv2<T>(
   options: CacheOptions
 ) {
   console.log('useQuery');
-  const [appState, setAppState] = useState(AppState.currentState);
+  // const [appState, setAppState] = useState(AppState.currentState);
   const [error, setError] = useState<any>();
-  const [responseData, setResponseData] = useState<any>();
-  const [storedData, setStoradData] = useMMKVString(key);
 
-  useEffect(() => {
-    if (!responseData) return;
-    try {
-      console.log('responseData!!!', responseData);
-      const data2 = JSON.stringify(responseData);
-      setStoradData(data2);
-    } catch (e) {
-      console.log('useEffect eerror', e);
-      throw e;
-    }
-  }, [responseData, setStoradData]);
-
-  const { environment, addRequestOnCache } = useCache(key, options);
+  const { environment, storeData, data } = useCache<T>(key, options);
 
   const fetchData = useCallback(async () => {
     console.log('fetchData');
     try {
-      addRequestOnCache();
       if (environment === Environment.CACHE) return;
       const response = await requestFn();
-      if (JSON.stringify(response) !== JSON.stringify(responseData)) {
-        console.log('response', response);
-        console.log('JSON.stringify(response)', JSON.stringify(response));
-        setResponseData(response);
-      }
+      storeData(response);
     } catch (e) {
       console.log('fetchData ERROR', e);
       if (JSON.stringify(e) !== JSON.stringify(error)) {
@@ -60,7 +36,7 @@ export function useQueryv2<T>(
       }
       throw e;
     }
-  }, [addRequestOnCache, environment, error, requestFn, responseData]);
+  }, [environment, error, requestFn, storeData]);
 
   useEffect(() => {
     fetchData();
@@ -78,8 +54,8 @@ export function useQueryv2<T>(
   // }, [appState, fetchData]);
 
   return {
-    data: JSON.parse(storedData),
-    error: responseData ? null : error,
+    data,
+    error: data ? null : error,
     refetch: fetchData,
   };
 }

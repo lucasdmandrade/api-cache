@@ -12,6 +12,7 @@ export function createBackgroundFetchsHandler<T>(
     set: (key: string, value: T) => void;
     del: (key: string) => void;
     get: (key: string) => T;
+    startPosition: (key: string) => void;
   },
   key: string,
   options: CacheOptions,

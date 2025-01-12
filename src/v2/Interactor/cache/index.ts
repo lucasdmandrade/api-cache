@@ -1,73 +1,51 @@
 import { useMMKVString } from 'react-native-mmkv';
 import type { CacheOptions } from '../../Entity/storage/types';
-import type { StoragedFetch } from './types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export enum Environment {
   API = 'API',
   CACHE = 'CACHE',
 }
 
-export const useCache = (key: string, options: CacheOptions) => {
-  const [cachedData, setCachedData] = useMMKVString('storagedFetchs');
+export const useCache = <T>(key: string, options: CacheOptions) => {
   const [environment, setEnvironment] = useState(Environment.API);
+  const [storedData, setStoradData] = useMMKVString(key);
 
-  const findCurrentRequest = useCallback(() => {
-    if (!cachedData) return;
+  const parsedData = useMemo(() => {
+    if (!storedData) return undefined;
+    return JSON.parse(storedData).data as T;
+  }, [storedData]);
 
-    const parsedData: StoragedFetch[] = cachedData
-      ? JSON.parse(cachedData)
-      : [];
+  const dataTimestammp = useMemo(() => {
+    if (!storedData) return 0;
+    return JSON.parse(storedData).timestamp;
+  }, [storedData]);
 
-    console.log('parsedData', parsedData);
+  const storeData = useCallback(
+    (data: T) => {
+      const now = Date.now();
+      const json = JSON.stringify({ data, timestamp: now });
 
-    const currentRequestIndex = parsedData?.findIndex(
-      (request) => request.key === key
-    );
-
-    if (currentRequestIndex === -1) return;
-
-    return parsedData.at(currentRequestIndex);
-  }, [cachedData, key]);
+      if (JSON.stringify(data) === JSON.stringify(parsedData)) return;
+      setStoradData(json);
+    },
+    [setStoradData, parsedData]
+  );
 
   const handleEnvironment = useCallback(() => {
     const { staleTime = 60000 } = options;
 
-    const parsedData: StoragedFetch[] = cachedData
-      ? [JSON.parse(cachedData)]
-      : [];
-
-    console.log('parsedData', parsedData);
-
-    const currentRequestIndex = parsedData?.findIndex(
-      (request) => request.key === key
-    );
-
-    const currentRequest = parsedData.at(currentRequestIndex);
-
-    if (Date.now() - currentRequest?.timestamp < staleTime) {
+    console.log('Date.now() - dataTimestammp', Date.now() - dataTimestammp);
+    console.log('staleTime', staleTime);
+    if (Date.now() - dataTimestammp < staleTime) {
+      console.log('USE CACHE');
       setEnvironment(Environment.CACHE);
     }
-  }, [cachedData, key, options]);
-
-  const addRequestOnCache = useCallback(() => {
-    const currentRequest = findCurrentRequest();
-    if (!currentRequest) return;
-
-    const request = {
-      key,
-      timestamp: Date.now(),
-    };
-
-    setCachedData((prev) => {
-      console.log('prev', prev);
-      return JSON.stringify([...JSON.parse(prev), request]);
-    });
-  }, [findCurrentRequest, key, setCachedData]);
+  }, [dataTimestammp, options]);
 
   useEffect(() => {
     handleEnvironment();
   }, [handleEnvironment]);
 
-  return { environment, addRequestOnCache };
+  return { data: parsedData, environment, storeData };
 };

@@ -6,11 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import {
-  useQuery,
-  BackgroundFetchProvider,
-  useQueryv2,
-} from 'react-native-api-cache';
+import { useQueryv2 } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 let apiCounter = 0;
@@ -50,7 +46,7 @@ const Component1 = () => {
     'exampleData',
     requestFn,
     {
-      staleTime: 0,
+      staleTime: 600,
       retries: 4,
       retryInterval: 5000,
       multiScreen: true,
@@ -121,7 +117,7 @@ const Component2 = () => {
     'exampleData',
     requestFn,
     {
-      staleTime: 0,
+      staleTime: 600,
       retries: 4,
       retryInterval: 5000,
       multiScreen: true,
