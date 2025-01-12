@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Environment, useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
 import { useRequest } from '../Interactor/api';
-// import { AppState } from 'react-native';
 
 /**
  * Hook para buscar dados com cache.
@@ -19,7 +18,6 @@ export function useQueryv2<T>(
   options: CacheOptions
 ) {
   console.log('useQuery');
-  // const [appState, setAppState] = useState(AppState.currentState);
   const [error, setError] = useState<any>();
 
   const { environment, storeData, data } = useCache<T>(key, options);
@@ -44,17 +42,6 @@ export function useQueryv2<T>(
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  // useEffect(() => {
-  //   const subscription = AppState.addEventListener('change', (nextAppState) => {
-  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {
-  //       fetchData();
-  //     }
-  //     setAppState(nextAppState);
-  //   });
-
-  //   return () => subscription.remove();
-  // }, [appState, fetchData]);
 
   return {
     data,
