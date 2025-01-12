@@ -33,10 +33,8 @@ export const useCache = <T>(key: string, options: CacheOptions) => {
   );
 
   const handleEnvironment = useCallback(() => {
-    const { staleTime = 60000 } = options;
+    const { staleTime = 600000 } = options;
 
-    console.log('Date.now() - dataTimestammp', Date.now() - dataTimestammp);
-    console.log('staleTime', staleTime);
     if (Date.now() - dataTimestammp < staleTime) {
       console.log('USE CACHE');
       return setEnvironment(Environment.CACHE);

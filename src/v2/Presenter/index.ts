@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Environment, useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
 import { useRequest } from '../Interactor/api';
+import { useBackgroundFetch } from '../Interactor/background';
 
 /**
  * Hook para buscar dados com cache.
@@ -22,11 +23,15 @@ export function useQueryv2<T>(
 
   const { environment, storeData, data } = useCache<T>(key, options);
   const { attemptFetch } = useRequest<T>();
+  const { isFetching, initFetching, endFetching } = useBackgroundFetch(key);
 
   const fetchData = useCallback(async () => {
     console.log('fetchData');
+
     try {
+      console.log('environment', environment);
       if (environment === Environment.CACHE) return;
+      initFetching();
       const response = await attemptFetch(requestFn, options);
       storeData(response);
       setError(null);
@@ -36,12 +41,26 @@ export function useQueryv2<T>(
         setError(e);
       }
       throw e;
+    } finally {
+      console.log('endFetching');
+      endFetching();
     }
-  }, [attemptFetch, environment, error, options, requestFn, storeData]);
+  }, [
+    attemptFetch,
+    endFetching,
+    environment,
+    error,
+    initFetching,
+    options,
+    requestFn,
+    storeData,
+  ]);
 
   useEffect(() => {
+    console.log('isFetching', isFetching);
+    if (isFetching) return;
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, isFetching]);
 
   return {
     data,
