@@ -39,12 +39,11 @@ export function createFetchHandler<T>(
         } else {
           console.error('Max retries reached. Throwing error...');
           onError(error);
-          throw error; // Sai do loop lançando o erro
+          throw error;
         }
       }
     }
 
-    // Este ponto nunca será alcançado por causa do throw e do return no loop.
     throw new Error('Unexpected error in attemptFetch');
   };
 

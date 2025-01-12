@@ -38,6 +38,7 @@
   ],
   "scripts": {
     "example": "yarn workspace react-native-api-cache-example",
+    "run-manual": "/Users/lucasandrade/Documents/codigos/testes/api-cache/api-cache/example/node_modules/.generated/launchPackager.command ; exit;",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",

@@ -6,7 +6,11 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useQuery, BackgroundFetchProvider } from 'react-native-api-cache';
+import {
+  useQuery,
+  BackgroundFetchProvider,
+  useQueryv2,
+} from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 let apiCounter = 0;
@@ -42,13 +46,14 @@ const Component1 = () => {
       });
   };
 
-  const { data, error, refetch } = useQuery<PokemonResponse>(
+  const { data, error, refetch } = useQueryv2<PokemonResponse>(
     'exampleData',
     requestFn,
     {
-      staleTime: 100,
+      staleTime: 0,
       retries: 4,
       retryInterval: 5000,
+      multiScreen: true,
     }
   );
 
@@ -112,13 +117,14 @@ const Component2 = () => {
       });
   };
 
-  const { data, error, refetch } = useQuery<PokemonResponse>(
+  const { data, error, refetch } = useQueryv2<PokemonResponse>(
     'exampleData',
     requestFn,
     {
-      staleTime: 100,
+      staleTime: 0,
       retries: 4,
       retryInterval: 5000,
+      multiScreen: true,
     }
   );
 
@@ -155,7 +161,8 @@ const Component2 = () => {
 
 const App = () => {
   return (
-    <BackgroundFetchProvider>
+    // <BackgroundFetchProvider>
+    <>
       <Component1 />
       <Component2 />
 
@@ -172,7 +179,8 @@ const App = () => {
           <Text style={styles.text}>Contador de requisições </Text>
         </TouchableOpacity>
       </View>
-    </BackgroundFetchProvider>
+    </>
+    // </BackgroundFetchProvider>
   );
 };
 

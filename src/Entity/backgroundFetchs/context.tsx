@@ -20,33 +20,32 @@ interface BackgroundFetchProviderProps {
 export const BackgroundFetchProvider = <T extends any>({
   children,
 }: BackgroundFetchProviderProps) => {
-  const [pendingRequests, setPendingRequestsMap] = useState<
-    Map<string, Awaited<T>>
-  >(new Map());
+  const [pendingRequests, setPendingRequestsMap] = useState<Map<string, T>>(
+    new Map()
+  );
 
-  // Função para atualizar o valor de uma chave no Map
   const set = (key: string, value: T) => {
+    if (JSON.stringify(pendingRequests.get(key)) === JSON.stringify(value)) {
+      return;
+    }
+
     setPendingRequestsMap((prevMap) => new Map(prevMap.set(key, value)));
   };
 
-  // Função para obter o valor de uma chave
   const get = (key: string) => {
     return pendingRequests.get(key);
   };
 
-  // Função para verificar se uma chave existe
   const has = (key: string) => {
     return pendingRequests.has(key);
   };
 
-  // Função para inicializar uma chave
   const startPosition = (key: string) => {
     if (!pendingRequests.has(key)) {
-      set(key, '');
+      set(key, '' as T);
     }
   };
 
-  // Função para deletar uma chave
   const del = (key: string) => {
     setPendingRequestsMap((prevMap) => {
       const newMap = new Map(prevMap);
@@ -79,8 +78,8 @@ export const useBackgroundFetchsObserver = <T extends any>(
 
   const { pendingRequests, set, get, has, startPosition, del } = context;
 
-  // Atualiza o valor sempre que mudar
   useEffect(() => {
+    console.log('useEffect pendingRequests.has(key)', pendingRequests.has(key));
     if (pendingRequests.has(key)) {
       sync(pendingRequests.get(key));
     }

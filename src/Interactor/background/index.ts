@@ -1,3 +1,5 @@
+import type { CacheOptions } from '../../Entity/storage/types';
+
 /**
  * Cria um presenter para carregar dados do interactor.
  * @template T - O tipo de dado esperado pelo fetchData.
@@ -12,25 +14,27 @@ export function createBackgroundFetchsHandler<T>(
     get: (key: string) => T;
   },
   key: string,
+  options: CacheOptions,
   requestFn: () => Promise<T>
 ) {
   const handleBackgroundRequests = async () => {
-    // await delay(5000);
-
-    // Verifica se já existe uma requisição pendente para a chave
-    if (backgroundFetchsOberver.has(key)) {
+    if (backgroundFetchsOberver.has(key) && backgroundFetchsOberver.get(key)) {
+      console.log(
+        'backgroundFetchsOberver.get(key)',
+        backgroundFetchsOberver.get(key)
+      );
       return backgroundFetchsOberver.get(key);
     }
-    backgroundFetchsOberver.startPosition(key);
+    options.multiScreen && backgroundFetchsOberver.startPosition(key);
 
-    // Caso contrário, inicia uma nova requisição
     const requestPromise = await handleCurrentFetch().then((res) => {
       console.log('requestPromise: ', res);
       return res;
     });
 
-    // Armazena a Promise no mapa para reutilização
-    backgroundFetchsOberver.set(key, requestPromise);
+    if (options.multiScreen) {
+      backgroundFetchsOberver.set(key, requestPromise);
+    }
 
     return requestPromise;
   };
@@ -39,20 +43,12 @@ export function createBackgroundFetchsHandler<T>(
     console.log('Starting request for', key);
 
     try {
-      // Executa a função de requisição
       const result = await requestFn();
       console.log('Request completed for', key);
       return result;
     } catch (e) {
       console.log('Error during fetch for', key, e);
       throw e;
-    } finally {
-      // Remove a chave do mapa após a conclusão ou erro
-      backgroundFetchsOberver.del(key);
-      console.log(
-        'Request completed and removed from pendingRequestsMap for',
-        key
-      );
     }
   };
 

@@ -15,12 +15,15 @@ export function createCachedFetch<T>(cacheStorage: CacheStorage) {
     requestFn: () => Promise<any>,
     options: CacheOptions
   ) => {
+    console.log('fetchData');
     const { staleTime = 60000 } = options;
 
     const cachedData = cacheStorage.get(key);
 
+    console.log('fetchData cachedData', cachedData);
     if (!cachedData) {
       const data = await requestFn();
+      console.log('fetchData cachedData REQUESTINFFFFFFFFFFFFF');
 
       cacheStorage.set(key, { data, timestamp: Date.now() });
       return data;
@@ -29,6 +32,15 @@ export function createCachedFetch<T>(cacheStorage: CacheStorage) {
     console.log('typeof cachedData === string', typeof cachedData === 'string');
 
     const parsedData = JSON.parse(cachedData) as CacheData<T>;
+    console.log(
+      'Date.now() - parsedData.timestamp < staleTime',
+      Date.now() - parsedData.timestamp < staleTime
+    );
+    console.log(
+      'Date.now() - parsedData.timestamp, staleTime',
+      Date.now() - parsedData.timestamp,
+      staleTime
+    );
 
     if (Date.now() - parsedData.timestamp < staleTime) {
       console.log('return cached');
