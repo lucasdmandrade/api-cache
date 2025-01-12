@@ -39,8 +39,9 @@ export const useCache = <T>(key: string, options: CacheOptions) => {
     console.log('staleTime', staleTime);
     if (Date.now() - dataTimestammp < staleTime) {
       console.log('USE CACHE');
-      setEnvironment(Environment.CACHE);
+      return setEnvironment(Environment.CACHE);
     }
+    setEnvironment(Environment.API);
   }, [dataTimestammp, options]);
 
   useEffect(() => {

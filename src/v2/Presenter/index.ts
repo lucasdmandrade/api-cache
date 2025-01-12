@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Environment, useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
+import { useRequest } from '../Interactor/api';
 // import { AppState } from 'react-native';
 
 /**
@@ -22,13 +23,15 @@ export function useQueryv2<T>(
   const [error, setError] = useState<any>();
 
   const { environment, storeData, data } = useCache<T>(key, options);
+  const { attemptFetch } = useRequest<T>();
 
   const fetchData = useCallback(async () => {
     console.log('fetchData');
     try {
       if (environment === Environment.CACHE) return;
-      const response = await requestFn();
+      const response = await attemptFetch(requestFn, options);
       storeData(response);
+      setError(null);
     } catch (e) {
       console.log('fetchData ERROR', e);
       if (JSON.stringify(e) !== JSON.stringify(error)) {
@@ -36,7 +39,7 @@ export function useQueryv2<T>(
       }
       throw e;
     }
-  }, [environment, error, requestFn, storeData]);
+  }, [attemptFetch, environment, error, options, requestFn, storeData]);
 
   useEffect(() => {
     fetchData();
@@ -55,7 +58,7 @@ export function useQueryv2<T>(
 
   return {
     data,
-    error: data ? null : error,
+    error: error,
     refetch: fetchData,
   };
 }
