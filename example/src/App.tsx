@@ -10,6 +10,7 @@ import { useQueryv2 } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 let apiCounter = 0;
+
 const teste = ['n'];
 let count = 0;
 
@@ -32,7 +33,6 @@ const Component1 = () => {
           apiCounter
         );
         increaseCounter();
-        console.log('response1!!!', response);
         const pokemons = await response.json();
         return pokemons;
       })
@@ -103,7 +103,6 @@ const Component2 = () => {
           apiCounter
         );
         increaseCounter();
-        console.log('response2!!!', response);
         const pokemons = await response.json();
         return pokemons;
       })

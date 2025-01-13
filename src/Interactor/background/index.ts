@@ -20,16 +20,11 @@ export function createBackgroundFetchsHandler<T>(
 ) {
   const handleBackgroundRequests = async () => {
     if (backgroundFetchsOberver.has(key) && backgroundFetchsOberver.get(key)) {
-      console.log(
-        'backgroundFetchsOberver.get(key)',
-        backgroundFetchsOberver.get(key)
-      );
       return backgroundFetchsOberver.get(key);
     }
     options.multiScreen && backgroundFetchsOberver.startPosition(key);
 
     const requestPromise = await handleCurrentFetch().then((res) => {
-      console.log('requestPromise: ', res);
       return res;
     });
 
@@ -41,11 +36,8 @@ export function createBackgroundFetchsHandler<T>(
   };
 
   const handleCurrentFetch = async () => {
-    console.log('Starting request for', key);
-
     try {
       const result = await requestFn();
-      console.log('Request completed for', key);
       return result;
     } catch (e) {
       console.log('Error during fetch for', key, e);

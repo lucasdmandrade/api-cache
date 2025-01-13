@@ -3,10 +3,8 @@ import { storage } from '../Entity/storage';
 import { createCachedFetch } from '../Interactor/cache';
 import { createFetchHandler } from '../Interactor/api';
 import type { CacheOptions } from '../Entity/storage/types';
-import { AppState } from 'react-native';
 import { createBackgroundFetchsHandler } from '../Interactor/background';
 import { useBackgroundFetchsObserver } from '../Entity/backgroundFetchs/context';
-import { useMMKVString } from 'react-native-mmkv';
 /**
  * Hook para buscar dados com cache.
  * @template T - O tipo de dado esperado pela requisição.
@@ -22,21 +20,13 @@ export function useQuery<T>(
   options: CacheOptions
 ) {
   console.log('useQuery');
-  const [appState, setAppState] = useState(AppState.currentState);
   const [data, setData] = useState<T | undefined>();
   const [error, setError] = useState<any>();
-
-  const [storagedString, setStoragedString] = useMMKVString(key);
-
-  useEffect(() => {
-    console.log('storagedString', storagedString);
-  }, [storagedString]);
 
   const handleResult = useCallback(
     (result?: T) => {
       console.log('Result updated');
       if (JSON.stringify(result) !== JSON.stringify(data)) {
-        console.log('bbbbbbbbbbbbbbbbb');
         setData(result);
       }
     },
@@ -63,8 +53,6 @@ export function useQuery<T>(
           options,
           (result) => {
             if (JSON.stringify(result) !== JSON.stringify(data)) {
-              console.log('aaaaaaaaaaaaa');
-              setStoragedString(JSON.stringify(result));
               setData(result);
             }
           },
@@ -75,30 +63,11 @@ export function useQuery<T>(
     );
 
     await backgroundHandler.fetcher();
-  }, [
-    backgroundFetchsOberver,
-    key,
-    options,
-    requestFn,
-    data,
-    setStoragedString,
-    error,
-  ]);
+  }, [backgroundFetchsOberver, key, options, requestFn, data, error]);
 
   useEffect(() => {
     fetchData();
   }, [key, fetchData]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {
-        fetchData();
-      }
-      setAppState(nextAppState);
-    });
-
-    return () => subscription.remove();
-  }, [appState, fetchData]);
 
   return { data, error: data ? null : error, refetch: fetchData };
 }
