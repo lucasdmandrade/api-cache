@@ -1,19 +1,31 @@
-import { useMMKVBoolean } from 'react-native-mmkv';
 import { useCallback } from 'react';
+import { storage } from '../../Entity/storage';
 
 export const useBackgroundFetch = (key: string) => {
-  const [isFetching, setIsFetching] = useMMKVBoolean(`background-${key}`);
+  const getIsFetching = useCallback(() => {
+    const state = storage.get(`background-${key}`);
+
+    return state;
+  }, [key]);
 
   const initFetching = useCallback(() => {
-    if (isFetching) return;
-    setIsFetching(true);
-  }, [isFetching, setIsFetching]);
+    const state = getIsFetching();
+    if (state) return;
+
+    storage.set(`background-${key}`, true);
+  }, [key, getIsFetching]);
 
   const endFetching = useCallback(() => {
-    if (!isFetching) return;
+    const state = getIsFetching();
 
-    setIsFetching(false);
-  }, [isFetching, setIsFetching]);
+    if (!state) return;
 
-  return { isFetching, initFetching, endFetching };
+    storage.clear(`background-${key}`);
+  }, [key, getIsFetching]);
+
+  return {
+    isFetching: getIsFetching,
+    initFetching,
+    endFetching,
+  };
 };

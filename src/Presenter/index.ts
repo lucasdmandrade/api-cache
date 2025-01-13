@@ -7,7 +7,6 @@ import { AppState } from 'react-native';
 import { createBackgroundFetchsHandler } from '../Interactor/background';
 import { useBackgroundFetchsObserver } from '../Entity/backgroundFetchs/context';
 import { useMMKVString } from 'react-native-mmkv';
-
 /**
  * Hook para buscar dados com cache.
  * @template T - O tipo de dado esperado pela requisição.
@@ -76,7 +75,15 @@ export function useQuery<T>(
     );
 
     await backgroundHandler.fetcher();
-  }, [backgroundFetchsOberver, key, requestFn, options, data, error]);
+  }, [
+    backgroundFetchsOberver,
+    key,
+    options,
+    requestFn,
+    data,
+    setStoragedString,
+    error,
+  ]);
 
   useEffect(() => {
     fetchData();

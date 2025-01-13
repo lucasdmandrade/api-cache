@@ -10,7 +10,7 @@ import { useQueryv2 } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
 
 let apiCounter = 0;
-const teste = ['a', 'v', 'n'];
+const teste = ['n'];
 let count = 0;
 
 const Component1 = () => {

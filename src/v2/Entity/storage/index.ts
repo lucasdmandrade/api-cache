@@ -9,7 +9,7 @@ const instance = new MMKV();
 
 export const storage = {
   get: (key: string) => {
-    return instance.getString(key) || null;
+    return instance.getBoolean(key) || null;
   },
   set: (key: string, value: any) => {
     instance.set(key, JSON.stringify(value));

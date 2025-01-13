@@ -26,12 +26,12 @@ export function useQueryv2<T>(
   const { isFetching, initFetching, endFetching } = useBackgroundFetch(key);
 
   const fetchData = useCallback(async () => {
-    console.log('fetchData');
+    const state = isFetching();
+    if (state) return;
 
     try {
-      console.log('environment', environment);
-      if (environment === Environment.CACHE) return;
       initFetching();
+      if (environment === Environment.CACHE) return;
       const response = await attemptFetch(requestFn, options);
       storeData(response);
       setError(null);
@@ -51,16 +51,15 @@ export function useQueryv2<T>(
     environment,
     error,
     initFetching,
+    isFetching,
     options,
     requestFn,
     storeData,
   ]);
 
   useEffect(() => {
-    console.log('isFetching', isFetching);
-    if (isFetching) return;
     fetchData();
-  }, [fetchData, isFetching]);
+  }, [fetchData]);
 
   return {
     data,
