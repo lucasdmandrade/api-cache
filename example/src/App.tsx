@@ -6,8 +6,25 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useQueryv2 } from 'react-native-api-cache';
+import { V3 } from 'react-native-api-cache';
 import type { PokemonResponse } from './mock';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const storageGetter = async (key: string) => {
+  const item = await AsyncStorage.getItem(key);
+
+  if (!item) return null;
+
+  return JSON.parse(item);
+};
+
+const storageSetter = async (key: string, value: any) => {
+  return await AsyncStorage.setItem(key, JSON.stringify(value));
+};
+
+const storageDelete = async (key: string) => {
+  return await AsyncStorage.removeItem(key);
+};
 
 let apiCounter = 0;
 
@@ -42,11 +59,11 @@ const Component1 = () => {
       });
   };
 
-  const { data, error, refetch } = useQueryv2<PokemonResponse>(
+  const { data, error, refetch } = V3.useQueryV3<PokemonResponse>(
     'exampleData',
     requestFn,
     {
-      staleTime: 600,
+      staleTime: 2000,
       retries: 4,
       retryInterval: 5000,
       multiScreen: true,
@@ -112,11 +129,11 @@ const Component2 = () => {
       });
   };
 
-  const { data, error, refetch } = useQueryv2<PokemonResponse>(
+  const { data, error, refetch } = V3.useQueryV3<PokemonResponse>(
     'exampleData',
     requestFn,
     {
-      staleTime: 600,
+      staleTime: 2000,
       retries: 4,
       retryInterval: 5000,
       multiScreen: true,
@@ -156,8 +173,13 @@ const Component2 = () => {
 
 const App = () => {
   return (
-    // <BackgroundFetchProvider>
-    <>
+    <V3.StorageProvider
+      storage={{
+        get: storageGetter,
+        set: storageSetter,
+        delete: storageDelete,
+      }}
+    >
       <Component1 />
       <Component2 />
 
@@ -174,8 +196,7 @@ const App = () => {
           <Text style={styles.text}>Contador de requisições </Text>
         </TouchableOpacity>
       </View>
-    </>
-    // </BackgroundFetchProvider>
+    </V3.StorageProvider>
   );
 };
 

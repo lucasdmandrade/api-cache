@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Environment, useCache } from '../Interactor/cache';
+import { useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
-import { useRequest } from '../Interactor/api';
-import { useBackgroundFetch } from '../Interactor/background';
+// import { useBackgroundFetch } from '../Interactor/background';
 
 /**
  * Hook para buscar dados com cache.
@@ -13,28 +12,32 @@ import { useBackgroundFetch } from '../Interactor/background';
  * @returns {{ data: T | undefined, error: UseQueryError | null, isLoading: boolean, refetch: () => Promise<void> }}
  */
 
-export function useQueryv2<T>(
+export function useQueryV3<T>(
   key: string,
   requestFn: () => Promise<T>,
   options: CacheOptions
 ) {
   console.log('useQuery');
   const [error, setError] = useState<any>();
+  const [data, setData] = useState<T>();
 
-  const { environment, storeData, data } = useCache<T>(key, options);
-  const { attemptFetch } = useRequest<T>();
-  const { isFetching, initFetching, endFetching } = useBackgroundFetch(key);
+  const { fetchData: cachedFetcher } = useCache<T>();
+  // const { endFetching } = useBackgroundFetch(key);
 
   const fetchData = useCallback(async () => {
     console.log('fetchData');
-    const fetching = isFetching();
-    if (fetching) return;
+    // const fetching = isFetching();
+    // if (fetching) return;
 
     try {
-      initFetching();
-      if (environment === Environment.CACHE) return;
-      const response = await attemptFetch(requestFn, options);
-      storeData(response);
+      // initFetching();
+      const response = await cachedFetcher(key, requestFn, options);
+
+      console.log(
+        '(JSON.stringify(response) !== JSON.stringify(data)',
+        JSON.stringify(response) !== JSON.stringify(data)
+      );
+      if (JSON.stringify(response) !== JSON.stringify(data)) setData(response);
       setError(null);
     } catch (e) {
       console.log('fetchData ERROR', e);
@@ -44,19 +47,9 @@ export function useQueryv2<T>(
       throw e;
     } finally {
       console.log('endFetching');
-      endFetching();
+      // endFetching();
     }
-  }, [
-    attemptFetch,
-    endFetching,
-    environment,
-    error,
-    initFetching,
-    isFetching,
-    options,
-    requestFn,
-    storeData,
-  ]);
+  }, [cachedFetcher, data, error, key, options, requestFn]);
 
   useEffect(() => {
     fetchData();
