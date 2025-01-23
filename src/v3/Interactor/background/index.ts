@@ -1,31 +1,39 @@
-// import { useCallback } from 'react';
-// import { storage } from '../../Entity/storage';
+import { useEffect, useState } from 'react';
+import * as backgroundFetchs from '../../Entity/backgroundFetchs';
 
-// export const useBackgroundFetch = (key: string) => {
-//   const getIsFetching = useCallback(() => {
-//     const state = storage.get(`background-${key}`);
+export const useBackgroundFetchs = (key: string) => {
+  const [isFetching, setIsFetching] = useState(false);
 
-//     return state;
-//   }, [key]);
+  const refreshIsFetching = () => {
+    const state = backgroundFetchs.isFetching(key);
+    setIsFetching(state);
+    return state;
+  };
 
-//   const initFetching = useCallback(() => {
-//     const state = getIsFetching();
-//     if (state) return;
+  useEffect(() => {
+    if (!isFetching) return;
 
-//     storage.set(`background-${key}`, true);
-//   }, [key, getIsFetching]);
+    const interval = setInterval(() => {
+      const currentState = backgroundFetchs.isFetching(key);
 
-//   const endFetching = useCallback(() => {
-//     const state = getIsFetching();
+      if (!currentState) {
+        setIsFetching(false);
+        clearInterval(interval);
+      }
+    }, 500);
 
-//     if (!state) return;
+    return () => clearInterval(interval);
+  }, [isFetching, key]);
 
-//     storage.clear(`background-${key}`);
-//   }, [key, getIsFetching]);
+  const setNewFetch = () => {
+    console.log('useBackgroundFetchs setNewFetch');
+    backgroundFetchs.setNewFetch(key);
+  };
 
-//   return {
-//     isFetching: getIsFetching,
-//     initFetching,
-//     endFetching,
-//   };
-// };
+  const removeFetch = () => {
+    console.log('useBackgroundFetchs removeFetch');
+    backgroundFetchs.removeFetch(key);
+  };
+
+  return { refreshIsFetching, setNewFetch, removeFetch, isFetching };
+};

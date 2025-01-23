@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useCache } from '../Interactor/cache';
 import type { CacheOptions } from '../Entity/storage/types';
-// import { useBackgroundFetch } from '../Interactor/background';
+import { useBackgroundFetchs } from '../Interactor/background';
 
 /**
  * Hook para buscar dados com cache.
@@ -22,15 +22,16 @@ export function useQueryV3<T>(
   const [data, setData] = useState<T>();
 
   const { fetchData: cachedFetcher } = useCache<T>();
-  // const { endFetching } = useBackgroundFetch(key);
+  const { isFetching, removeFetch, setNewFetch, refreshIsFetching } =
+    useBackgroundFetchs(key);
 
   const fetchData = useCallback(async () => {
-    console.log('fetchData');
-    // const fetching = isFetching();
-    // if (fetching) return;
-
     try {
-      // initFetching();
+      console.log('fetchData');
+      refreshIsFetching();
+      console.log('isFetching', isFetching);
+      if (isFetching) return;
+      setNewFetch();
       const response = await cachedFetcher(key, requestFn, options);
 
       console.log(
@@ -47,9 +48,20 @@ export function useQueryV3<T>(
       throw e;
     } finally {
       console.log('endFetching');
-      // endFetching();
+      removeFetch();
     }
-  }, [cachedFetcher, data, error, key, options, requestFn]);
+  }, [
+    cachedFetcher,
+    data,
+    error,
+    isFetching,
+    key,
+    options,
+    refreshIsFetching,
+    removeFetch,
+    requestFn,
+    setNewFetch,
+  ]);
 
   useEffect(() => {
     fetchData();

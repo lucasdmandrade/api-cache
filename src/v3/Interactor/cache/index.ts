@@ -11,7 +11,7 @@ export function useCache<T>() {
 
   const fetchData = async (
     key: string,
-    requestFn: () => Promise<any>,
+    requestFn: () => Promise<T>,
     options: CacheOptions
   ) => {
     console.log('fetchData cache');

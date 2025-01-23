@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>WiseUpOnline.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>3</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>1D9611B6A8D5CA6F6D539452713D9AE892E87792</string>
+				<key>dateExpires</key>
+				<string>20/01/26</string>
+				<key>type</key>
+				<string>iOS Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>0.12.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>1D9611B6A8D5CA6F6D539452713D9AE892E87792</string>
+						<key>dateExpires</key>
+						<string>20/01/26</string>
+						<key>type</key>
+						<string>iOS Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>hermes.framework</string>
+					<key>symbols</key>
+					<true/>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>9EDZ8GE7Y2</string>
+						<key>name</key>
+						<string>Wiser Educação S.A.</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.12.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>9EDZ8GE7Y2.com.wiseup.online.ios</string>
+				<key>aps-environment</key>
+				<string>production</string>
+				<key>beta-reports-active</key>
+				<true/>
+				<key>com.apple.developer.team-identifier</key>
+				<string>9EDZ8GE7Y2</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>WiseUpOnline.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>21b65e9e-d634-4333-bc24-e7e2c757b518</string>
+				<key>dateExpires</key>
+				<string>20/01/26</string>
+				<key>name</key>
+				<string>iOS Team Store Provisioning Profile: com.wiseup.online.ios</string>
+			</dict>
+			<key>symbols</key>
+			<true/>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>9EDZ8GE7Y2</string>
+				<key>name</key>
+				<string>Wiser Educação S.A.</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>7.5.12</string>
+		</dict>
+	</array>
+</dict>
+</plist>
