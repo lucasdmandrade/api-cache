@@ -20,18 +20,18 @@ export const useBackgroundFetchs = (key: string) => {
         setIsFetching(false);
         clearInterval(interval);
       }
+
+      //Lembrei errado, esse tempo é para atualizar o valor de isFetching automaticamente, nn atualizar o dado na tela
     }, 500);
 
     return () => clearInterval(interval);
   }, [isFetching, key]);
 
   const setNewFetch = () => {
-    console.log('useBackgroundFetchs setNewFetch');
     backgroundFetchs.setNewFetch(key);
   };
 
   const removeFetch = () => {
-    console.log('useBackgroundFetchs removeFetch');
     backgroundFetchs.removeFetch(key);
   };
 

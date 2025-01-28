@@ -17,7 +17,6 @@ export function useQueryV3<T>(
   requestFn: () => Promise<T>,
   options: CacheOptions
 ) {
-  console.log('useQuery');
   const [error, setError] = useState<any>();
   const [data, setData] = useState<T>();
 
@@ -27,27 +26,20 @@ export function useQueryV3<T>(
 
   const fetchData = useCallback(async () => {
     try {
-      console.log('fetchData');
       refreshIsFetching();
-      console.log('isFetching', isFetching);
       if (isFetching) return;
+
       setNewFetch();
       const response = await cachedFetcher(key, requestFn, options);
 
-      console.log(
-        '(JSON.stringify(response) !== JSON.stringify(data)',
-        JSON.stringify(response) !== JSON.stringify(data)
-      );
       if (JSON.stringify(response) !== JSON.stringify(data)) setData(response);
       setError(null);
     } catch (e) {
-      console.log('fetchData ERROR', e);
       if (JSON.stringify(e) !== JSON.stringify(error)) {
         setError(e);
       }
       throw e;
     } finally {
-      console.log('endFetching');
       removeFetch();
     }
   }, [

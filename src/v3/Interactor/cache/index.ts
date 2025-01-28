@@ -14,7 +14,6 @@ export function useCache<T>() {
     requestFn: () => Promise<T>,
     options: CacheOptions
   ) => {
-    console.log('fetchData cache');
     const { staleTime = 60000 } = options;
 
     const cachedData = await storage.get(key);
@@ -29,7 +28,6 @@ export function useCache<T>() {
     const parsedData = cachedData;
 
     if (Date.now() - parsedData.timestamp < staleTime) {
-      console.log('RETURN CACHE');
       return parsedData.data;
     }
 
